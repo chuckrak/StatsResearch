@@ -53,19 +53,46 @@ plot(interaction_B)
 data <- read.csv('../p3/data.csv') 
 head(data)
 data <- data %>% mutate(
-  'Female' = as.integer(Gender == 'Male'), 
+  'Female' = as.integer(Gender == 'Female'), 
   'NormalLight' = as.integer(Light == 'Normal Light'),
-  'DosageFactor' = as.factor(Dosage),
   'LogLH' = log(LH)
 )
 
-data <- data %>% mutate(
-  'Female:NormalLight' = Female * NormalLight,
-  'Female:Dosage' = Female * Dosage
-)
+
 head(data)
 
-model <- data %>% lm(LH ~ Female + NormalLight + DosageFactor + Female:NormalLight + `Female:Dosage`, .)
+data <- data %>% mutate(
+  'Female:NormalLight' = Female * NormalLight,
+  'Female:Dosage1250' = Female*Dosage1250
+)
 
 
-logmodel <- data %>% lm(LogLH ~ Female + NormalLight + DosageFactor + Female:NormalLight + `Female:Dosage`, .)
+
+
+
+
+
+# Convert 'variable' to factor
+data$Dosage <- factor(data$Dosage)
+
+# Create dummy variables using model.matrix
+dummy_variables <- model.matrix(~ Dosage - 1, data)
+
+# Convert the result to a data frame
+dummy_variables_df <- as.data.frame(dummy_variables)
+
+# Combine with original data
+data <- cbind(data, dummy_variables_df)
+
+# View the result
+head(data)
+
+
+model <- data %>% lm(LH ~ Female + NormalLight + Dosage10 + Dosage50 + Dosage250 + Dosage1250 + Female:NormalLight + `Female:Dosage1250`, .)
+
+
+logmodel <- data %>% lm(LogLH ~ Female + NormalLight + Dosage10 + Dosage50 + Dosage250 + Dosage1250 + Female:NormalLight + `Female:Dosage1250`, .)
+
+
+
+
